@@ -13,7 +13,7 @@ class Arsenal:
 
     def update_arsenal(self):
         self.arsenal.update()
-        self._remove_bullets_offsceen
+        self._remove_bullets_offsceen()
 
     def _remove_bullets_offsceen(self):
         for bullet in self.arsenal.copy():
