@@ -81,6 +81,7 @@ class AlienInvasion:
             # update game stats level
             self.game_stats.update_level
             # update HUD view
+            self.HUD.update_level()
             
             self._reset_level()
 
