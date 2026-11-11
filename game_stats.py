@@ -1,77 +1,61 @@
-# from pathlib import Path
+"""Program Name: Alien Invasion: Twin Cannons - Track 1
+Author: Jose Luna (project author)
+Purpose: Track lives, wave, score, and the saved high score.
+Starter Code Links: https://github.com/lunajosee/Alien-Invasion/commit/fce0cff1b927668d54dbe87686913285877a27ab
+Date Updated: November 10, 2026
+"""
+
 import json
 
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from alien_invasion import AlienInvasion
-
-
-class GameStats():
+class GameStats:
+    """Track the current run and retain a high score between sessions."""
 
     def __init__(self, game):
-        self.game = game
+        """Load the saved record and initialize a run."""
         self.settings = game.settings
-        self.max_score = 0
-        self.init_saved_scores()
+        self.path = self.settings.scores_file
+        self.hi_score = self._load_score()
+        self.saved_hi_score = self.hi_score
         self.reset_stats()
 
-    def init_saved_scores(self):
-        self.path = self.settings.scores_file
-        if self.path.exists() and self.path.stat.__sizeof__() > 20:
-            contents = self.path.read_text()
-            scores = json.loads(contents)
-            self.hi_score = scores.get('hi_score', 0)
-        else:
-            self.hi_score = 0
-            self.save_scores()
-            # save the file
+    def _load_score(self):
+        """Return a valid nonnegative saved record, or zero on a new install."""
+        try:
+            scores = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return 0
+        score = scores.get("hi_score") if isinstance(scores, dict) else None
+        return score if type(score) is int and score >= 0 else 0
 
     def save_scores(self):
-        scores = {
-            'hi_score': self.hi_score
-        }
-        contents = json.dumps(scores, indent=4)
+        """Persist a new record without rewriting the file every run."""
+        if self.hi_score <= self.saved_hi_score:
+            return
         try:
-            self.path.write_text(contents)
-        except FileNotFoundError as e:
-            print(f"Error saving scores: {e}")
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = self.path.with_suffix(".tmp")
+            temporary.write_text(
+                json.dumps({"hi_score": self.hi_score}, indent=4) + "\n",
+                encoding="utf-8",
+            )
+            temporary.replace(self.path)
+        except OSError as error:
+            print(f"Could not save the high score: {error}")
+        else:
+            self.saved_hi_score = self.hi_score
 
     def reset_stats(self):
+        """Restore the starting lives, score, and wave without clearing the record."""
         self.ship_count = self.settings.starting_ship_count
         self.score = 0
         self.level = 1
 
-    def update(self, collisions):
-        # update score
-        self._update_score(collisions)
-        # update max_score
-        self._update_max_score()
-
-        # update hi_score
-        self._update_hi_score()
-
-    def _update_max_score(self):
-        if self.score > self.max_score:
-            self.max_score = self.score
-        print(f'Basic: {self.score}')
-
-    def _update_hi_score(self):
-        if self.score > self.hi_score:
-            self.hi_score = self.score
-        # print(f'Hi: {self.hi_score}')
-
-    def _update_score(self, collisions):
-        for alien in collisions.values():
-            self.score += self.settings.alien_points
-        # print(f'Basic: {self.score}')  
+    def add_points(self, points):
+        """Award points for destroyed aliens and update the record."""
+        self.score += points
+        self.hi_score = max(self.hi_score, self.score)
 
     def update_level(self):
+        """Advance the wave number after the entire fleet is cleared."""
         self.level += 1
-        print(self.level)
-
-
-
-    
-
-

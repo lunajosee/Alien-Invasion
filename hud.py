@@ -1,73 +1,75 @@
-import pygame.font
-# from alien_invasion import AlienInvasion
-# from typing import TYPE_CHECKING
+"""Program Name: Alien Invasion: Twin Cannons - Track 1
+Author: Jose Luna (project author)
+Purpose: Draw the menu and the weapon, score, wave, and lives displays.
+Starter Code Links: https://github.com/lunajosee/Alien-Invasion/commit/fce0cff1b927668d54dbe87686913285877a27ab
+Date Updated: November 10, 2026
+"""
 
-# if TYPE_CHECKING:
+import pygame
+
 
 class HUD:
+    """Show the current weapon, cooldown, wave, lives, and scores."""
 
     def __init__(self, game):
+        """Load the HUD font and establish the dimensions used for layout."""
         self.game = game
-        self.settings = game.settings
         self.screen = game.screen
-        self.boundaries = game.screen.get_rect()
-        self.game_stats = game.game_stats
-        self.font = pygame.font.Font(self.settings.font_file, 
-            self.settings.HUD_font_size)
-        self.padding = 20
-        self.update_scores()
-        self._setup_life_image()
-        self.update_level()
-
-    def update_scores(self):
-        self.update_max_score()
-        self.update_score()
-        self.update_hi_score()
-
-    def _setup_life_image(self):
-        self.life_image = pygame.image.load(self.settings.ship_file)
-        self.life_image = pygame.transform.scale(self.life_image, (
-            self.settings.ship_w, self.settings.ship_h
-            ))
-        self.life_rect = self.life_image.get_rect()
-
-    def update_score(self):
-        score_str = f"Score: {self.game_stats.score: ,.0f}"
-        self.score_image = self.font.render(score_str, True, self.settings.text_color, None)
-        self.score_rect = self.score_image.get_rect()
-        self.score_rect.right = self.boundaries.right - self.padding
-        self.score_rect.top = self.max_score_rect.bottom + self.padding
-
-    def update_max_score(self):
-        max_score_str = f"Max-Score: {self.game_stats.max_score: ,.0f}"
-        self.max_score_image = self.font.render(max_score_str, True, self.settings.text_color, None)
-        self.max_score_rect = self.max_score_image.get_rect()
-        self.max_score_rect.right = self.boundaries.right - self.padding
-        self.max_score_rect.top = self.padding
-        
-    def update_hi_score(self):
-        hi_score_str = f"Hi-Score: {self.game_stats.hi_score: ,.0f}"
-        self.hi_score_image = self.font.render(hi_score_str, True, self.settings.text_color, None)
-        self.hi_score_rect = self.hi_score_image.get_rect()
-        self.hi_score_rect.midtop = (self.boundaries.centerx, self.padding)
-    
-    def update_level(self):
-        level_str = f"Level: {self.game_stats.level: ,.0f}"
-        self.level_image = self.font.render(level_str, True, self.settings.text_color, None)
-        self.level_rect = self.level_image.get_rect()
-        self.level_rect.left = self.padding
-        self.level_rect.top = self.life_rect.bottom + self.padding
-
-    def _draw_lives(self):
-        current_x = self.padding
-        current_y = self.padding
-        for _ in range(self.game_stats.ship_count):
-            self.screen.blit(self.life_image, (current_x, current_y))
-            current_x += self.life_rect.width + self.padding
+        self.bounds = self.screen.get_rect()
+        settings = game.settings
+        font_path = str(settings.font_file)
+        self.font = pygame.font.Font(font_path, settings.HUD_font_size)
+        self.title_font = pygame.font.Font(font_path, 54)
+        self.muted = (181, 200, 217)
+        self.ink = (239, 246, 250)
+        self.cyan = (106, 225, 246)
+        self.gold = (250, 200, 77)
 
     def draw(self):
-        self.screen.blit(self.hi_score_image, self.hi_score_rect)
-        self.screen.blit(self.max_score_image, self.max_score_rect)
-        self.screen.blit(self.score_image, self.score_rect)
-        self.screen.blit(self.level_image, self.level_rect)
-        self._draw_lives()
+        """Draw live game values and indicate when the next shot is available."""
+        game = self.game
+        stats = game.game_stats
+        pygame.draw.rect(self.screen, (11, 21, 35), (0, 0, self.bounds.width, 84))
+        mode = game.weapon_mode
+        weapon = game.settings.weapon_modes[mode]
+        color = self.cyan if mode == "rapid" else self.gold
+        arsenal = game.ship.arsenal
+        if pygame.time.get_ticks() < arsenal.next_shot_ms:
+            status = "Recharging"
+        elif len(arsenal.arsenal) >= game.settings.bullet_amount:
+            status = "Shot limit"
+        else:
+            status = "Ready"
+        self._draw_text(f"{mode.title()}  /  {status}", (20, 14), color)
+        self._draw_text(f"1 Rapid   2 Power   /   {weapon['damage']} damage",
+                        (20, 46), self.muted)
+        self._draw_text(f"Wave {stats.level}   /   Lives {stats.ship_count}",
+                        (self.bounds.centerx, 14), self.ink, anchor="midtop")
+        self._draw_text(f"Score {stats.score:,}", (self.bounds.right - 20, 14),
+                        self.ink, anchor="topright")
+        self._draw_text(f"Best {stats.hi_score:,}", (self.bounds.right - 20, 46),
+                        self.muted, anchor="topright")
+
+    def draw_menu(self, title, game_over):
+        """Draw a dark menu overlay, with the score or instructions as appropriate."""
+        overlay = pygame.Surface(self.bounds.size, pygame.SRCALPHA)
+        overlay.fill((8, 15, 27, 219))
+        self.screen.blit(overlay, (0, 0))
+        center_x, center_y = self.bounds.center
+        self._draw_text(title, (center_x, center_y - 133), self.ink,
+                        anchor="midtop", font=self.title_font)
+        if game_over:
+            stats = self.game.game_stats
+            subtitle = f"Score {stats.score:,}   /   Best {stats.hi_score:,}"
+        else:
+            subtitle = "ALIEN INVASION  /  TRACK 1: MECHANICS"
+        self._draw_text(subtitle, (center_x, center_y - 61), self.cyan, anchor="midtop")
+        self._draw_text("Arrow keys: move   /   Space: fire   /   1 or 2: switch",
+                        (center_x, center_y + 65), self.ink, anchor="midtop")
+        self._draw_text("Gold armor takes two Rapid hits or one Power hit.",
+                        (center_x, center_y + 100), self.gold, anchor="midtop")
+
+    def _draw_text(self, message, position, color, *, anchor="topleft", font=None):
+        """Render text and align its requested anchor to the given point."""
+        image = (font or self.font).render(message, True, color)
+        self.screen.blit(image, image.get_rect(**{anchor: position}))

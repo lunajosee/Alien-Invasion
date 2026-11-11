@@ -1,108 +1,85 @@
-import pygame
-from alien import Alien
-from typing import TYPE_CHECKING
+"""Program Name: Alien Invasion: Twin Cannons - Track 1
+Author: Jose Luna (project author)
+Purpose: Create each wave and resolve movement and projectile hits.
+Starter Code Links: https://github.com/lunajosee/Alien-Invasion/commit/fce0cff1b927668d54dbe87686913285877a27ab
+Date Updated: November 10, 2026
+"""
 
-if TYPE_CHECKING:
-    from alien_invasion import AlienInvasion
+import pygame
+
+from alien import Alien
+
 
 class AlienFleet:
+    """Spawn, move, and resolve projectile hits for each wave."""
 
-    def __init__(self, game: "AlienInvasion"):
+    def __init__(self, game):
+        """Load one shared alien sprite and start with an empty fleet."""
         self.game = game
         self.settings = game.settings
         self.fleet = pygame.sprite.Group()
-        self.fleet_direction = self.settings.fleet_direction
-        self.fleet_drop_speed = self.settings.fleet_drop_speed
+        self.fleet_direction = 1
+        image = pygame.image.load(str(self.settings.alien_file)).convert_alpha()
+        self.alien_image = pygame.transform.scale(
+            image, (self.settings.alien_w, self.settings.alien_h)
+        )
 
-        self.create_fleet()
-
-    def create_fleet(self):
-        alien_w = self.settings.alien_w
-        alien_h = self.settings.alien_h
-        screen_w = self.settings.screen_w
-        screen_h = self.settings.screen_h
-
-        fleet_w, fleet_h = self.calculate_fleet_size(alien_w, screen_w, alien_h, screen_h)
-        x_offset, y_offset = self.calculate_offsets(alien_w, alien_h, screen_w, fleet_w, fleet_h)
-
-        
-        self._create_rectangle_fleet(alien_w, alien_h, fleet_w, fleet_h, x_offset, y_offset)
-
-    def _create_rectangle_fleet(self, alien_w, alien_h, fleet_w, fleet_h, x_offset, y_offset):
-        for row in range(fleet_h):
-            for col in range(fleet_w):
-                current_x = alien_w * col + x_offset
-                current_y = alien_h * row + y_offset
-                if col % 2 == 0 or row % 2 == 0:
-                    continue
-                self._create_alien(current_x, current_y)
-
-    def calculate_offsets(self, alien_w, alien_h, screen_w, fleet_w, fleet_h):
-        half_screen = self.settings.screen_h//2
-        fleet_horizontal_space = fleet_w * alien_w
-        fleet_vertical_space = fleet_h * alien_h
-        x_offset = int((screen_w-fleet_horizontal_space)//2)
-        y_offset = int((half_screen-fleet_vertical_space)//2)
-        return x_offset,y_offset
-
-    def calculate_fleet_size(self, alien_w, screen_w, alien_h, screen_h):
-        fleet_w = (screen_w//alien_w)
-        fleet_h = ((screen_h /2)//alien_h)
-
-        if fleet_w % 2 == 0:
-            fleet_w -= 1
-        else:
-            fleet_w -= 2
-
-        if fleet_h % 2 == 0:
-            fleet_h -= 1
-        else:
-            fleet_h -= 2
-
-        return int(fleet_w), int(fleet_h)
-
-    def _create_alien(self, current_x: int, current_y: int):
-        new_alien = Alien(self, current_x, current_y)
-
-        
-        
-        self.fleet.add(new_alien)
-
-    def _check_fleet_edges(self):
-        for alien in self.fleet:
-            if alien.check_edges():
-                self.fleet_direction *= -1
-
-                for fleet_alien in self.fleet:
-                    fleet_alien.y += self.fleet_drop_speed
-
-                break
-                
-    def _drop_alien_fleet(self):
-        for alien in self.fleet:
-            alien.rect.y += self.fleet_drop_speed
+    def create_fleet(self, wave):
+        """Replace the previous wave with two rows of normal and armored aliens."""
+        self.fleet.empty()
+        self.fleet_direction = 1
+        columns = 8
+        step_x = self.settings.alien_w + 30
+        step_y = self.settings.alien_h + 22
+        width = (columns - 1) * step_x + self.settings.alien_w
+        start_x = (self.settings.screen_w - width) // 2
+        for row in range(2):
+            for column in range(columns):
+                armored = (row + column + wave) % 3 == 0
+                alien = Alien(
+                    self, start_x + column * step_x, 125 + row * step_y, armored
+                )
+                self.fleet.add(alien)
 
     def update_fleet(self):
-        self._check_fleet_edges()
-        self.fleet.update()
-
-
-    def draw(self):
-        alien: "Alien"
+        """Move as a group, reversing once and dropping once at either wall."""
+        if not self.fleet:
+            return
+        dx = self.settings.fleet_speed * self.fleet_direction
+        left = min(alien.x for alien in self.fleet)
+        right = max(alien.x + alien.rect.width for alien in self.fleet)
+        dy = 0
+        if dx > 0 and right + dx >= self.settings.screen_w:
+            dx = self.settings.screen_w - right
+            self.fleet_direction = -1
+            dy = self.settings.fleet_drop_speed
+        elif dx < 0 and left + dx <= 0:
+            dx = -left
+            self.fleet_direction = 1
+            dy = self.settings.fleet_drop_speed
         for alien in self.fleet:
-            alien.draw_alien()
+            alien.move(dx, dy)
 
-    def check_collisions(self, other_group):
-        return pygame.sprite.groupcollide(self.fleet, other_group, True, True)
+    def check_collisions(self, bullets):
+        """Spend each hit bullet on the nearest alien and return hits and points."""
+        hits = points = 0
+        for bullet in bullets.sprites():
+            targets = pygame.sprite.spritecollide(bullet, self.fleet, False)
+            if not targets:
+                continue
+            # Shots travel upward: the lowest overlapping alien is hit first.
+            target = max(targets, key=lambda alien: alien.rect.bottom)
+            bullet.kill()
+            hits += 1
+            if target.take_hit(bullet.damage):
+                points += target.points
+        return hits, points
 
     def check_fleet_bottom(self):
-        alien: Alien
+        """Report whether any alien has crossed the bottom of the playfield."""
+        return any(alien.rect.bottom >= self.settings.screen_h for alien in self.fleet)
+
+    def draw(self):
+        """Draw all remaining aliens, including their armor indicators."""
         for alien in self.fleet:
-            if alien.rect.bottom >= self.settings.screen_h:
-                return True
-        return False
-
-    def check_destroyed_status(self):
-        return not self.fleet
-
-        
+            alien.draw_alien()

@@ -20,6 +20,7 @@ class Bullet(Sprite):
 
         self.screen = game.screen
         self.settings = game.settings
+        self.mode = mode
 
         if mode is None:
             size = (self.settings.bullet_w, self.settings.bullet_h)
@@ -46,3 +47,5 @@ class Bullet(Sprite):
     def draw_bullet(self):
         """Draw the projectile at its current position."""
         self.screen.blit(self.image, self.rect)
+        if self.mode == "power":
+            pygame.draw.rect(self.screen, (250, 200, 77), self.rect, 1, border_radius=5)

@@ -12,12 +12,12 @@ class Settings:
     def __init__(self):
         """Set window dimensions, paths, and static game options."""
         assets_dir = Path(__file__).resolve().parent / "Assets"
-        self.name: str = "Alien Invasion"
+        self.name = "Alien Invasion: Twin Cannons - Track 1"
         self.screen_w = 1200
         self.screen_h = 800
         self.FPS = 60
         self.bg_file = assets_dir / 'images' / "Starbasesnow.png"
-        self.difficulty_scale = 1.1
+        self.difficulty_scale = 1.12
         self.scores_file = assets_dir / 'file' / "scores.json"
 
         self.ship_file = assets_dir / 'images' / "ship2(no bg).png"
@@ -30,7 +30,6 @@ class Settings:
         self.alien_file = assets_dir / 'images' / "enemy_4.png"
         self.alien_w = 40
         self.alien_h = 40
-        self.fleet_direction = 1
 
         self.button_w = 200
         self.button_h = 50
@@ -55,12 +54,10 @@ class Settings:
             'power': {'size': (36, 86), 'speed': 6, 'damage': 2, 'cooldown_ms': 520},
         }
 
-        self.fleet_speed = 2
-        self.fleet_drop_speed = 40
+        self.fleet_speed = 3
+        self.fleet_drop_speed = 60
         self.alien_points = 50
 
     def increase_difficulty(self):
-        """Increase movement speeds for the next wave in the main game."""
-        self.ship_speed += self.difficulty_scale
-        self.bullet_speed += self.difficulty_scale
-        self.fleet_speed += self.difficulty_scale
+        """Speed up later fleets without changing the weapons or ship."""
+        self.fleet_speed = min(6, self.fleet_speed * self.difficulty_scale)

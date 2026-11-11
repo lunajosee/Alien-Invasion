@@ -1,45 +1,46 @@
+"""Program Name: Alien Invasion: Twin Cannons - Track 1
+Author: Jose Luna (project author)
+Purpose: Track alien health and display armored targets.
+Starter Code Links: https://github.com/lunajosee/Alien-Invasion/commit/fce0cff1b927668d54dbe87686913285877a27ab
+Date Updated: November 10, 2026
+"""
+
 import pygame
-from pygame.sprite import Sprite
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from alien_fleet import AlienFleet
 
-class Alien(Sprite):
-    def __init__(self, fleet: "AlienFleet", x: float, y: float):
+class Alien(pygame.sprite.Sprite):
+    """An alien with one hit point, or two when protected by armor."""
+
+    def __init__(self, fleet, x, y, armored=False):
+        """Place the alien in the fleet and set its health and point value."""
         super().__init__()
-        self.fleet = fleet
         self.screen = fleet.game.screen
-        self.boundaries = fleet.game.screen.get_rect()
-        self.settings = fleet.game.settings
+        self.image = fleet.alien_image
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.x = float(x)
+        self.y = float(y)
+        self.armored = armored
+        self.health = 2 if armored else 1
+        self.points = fleet.settings.alien_points * (2 if armored else 1)
 
-        self.image = pygame.image.load(self.settings.alien_file)
-        self.image = pygame.transform.scale(self.image, 
-            (self.settings.alien_w, self.settings.alien_h)
-            )
+    def take_hit(self, damage):
+        """Subtract projectile damage and report whether the alien was destroyed."""
+        self.health -= damage
+        if self.health > 0:
+            return False
+        self.kill()
+        return True
 
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-        self.y = float(self.rect.y)
-        self.x = float(self.rect.x)
-
-    def update(self):
-          temp_speed = self.settings.fleet_speed
-
-        # if self.check_edges():
-        # self.settings.fleet_direction *= -1
-        # self.y += self.settings.fleet_drop_speed
-
-          self.x += temp_speed * self.fleet.fleet_direction
-          self.rect.x = self.x
-          self.rect.y = self.y
-
-    def check_edges(self):
-         return (self.rect.right >= self.boundaries.right or self.rect.left <= self.boundaries.left)
+    def move(self, dx, dy):
+        """Move by the fleet's shared offset, keeping fractional positions."""
+        self.x += dx
+        self.y += dy
+        self.rect.topleft = (round(self.x), round(self.y))
 
     def draw_alien(self):
-            self.screen.blit(self.image, self.rect)
-
-    
+        """Draw the sprite and show a gold shield while armor is intact."""
+        self.screen.blit(self.image, self.rect)
+        if self.armored:
+            color = (250, 200, 77) if self.health == 2 else (200, 120, 70)
+            width = 3 if self.health == 2 else 1
+            pygame.draw.rect(self.screen, color, self.rect, width, border_radius=6)

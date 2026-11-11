@@ -21,6 +21,11 @@ class Arsenal:
         self.arsenal = pygame.sprite.Group()
         self.next_shot_ms = 0
 
+    def reset(self):
+        """Clear every shot and allow an immediate shot in the next wave."""
+        self.arsenal.empty()
+        self.next_shot_ms = 0
+
     def update_arsenal(self):
         """Move the shots and clear those that left the screen."""
         self.arsenal.update()
