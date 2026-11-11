@@ -1,7 +1,16 @@
+"""Program Name: Alien Invasion: Twin Cannons - Track 1
+Author: Jose Luna (project author)
+Purpose: Configure assets and the two weapon modes.
+Starter Code Links: https://github.com/lunajosee/Alien-Invasion/commit/fce0cff1b927668d54dbe87686913285877a27ab
+Date Updated: November 10, 2026
+"""
+
 from pathlib import Path
 class Settings:
+    """Store the asset paths, game constants, and adjustable settings."""
 
     def __init__(self):
+        """Set window dimensions, paths, and static game options."""
         assets_dir = Path(__file__).resolve().parent / "Assets"
         self.name: str = "Alien Invasion"
         self.screen_w = 1200
@@ -17,7 +26,7 @@ class Settings:
         self.bullet_file = assets_dir / 'images' / "laserBlast.png"
         self.laser_sound = assets_dir / 'sound' / "laser.mp3"
         self.impact_sound = assets_dir / 'sound' / "impactSound.mp3"
-        
+
         self.alien_file = assets_dir / 'images' / "enemy_4.png"
         self.alien_w = 40
         self.alien_h = 40
@@ -33,6 +42,7 @@ class Settings:
         self.font_file = assets_dir / 'Fonts' / 'Silkscreen' / 'Silkscreen-Regular.ttf'
 
     def initialize_dynamic_settings(self):
+        """Restore starting speeds and weapon rules."""
         self.ship_speed = 5
         self.starting_ship_count = 3
 
@@ -40,15 +50,17 @@ class Settings:
         self.bullet_h = 80
         self.bullet_speed = 7
         self.bullet_amount = 5
+        self.weapon_modes = {
+            'rapid': {'size': (14, 44), 'speed': 10, 'damage': 1, 'cooldown_ms': 140},
+            'power': {'size': (36, 86), 'speed': 6, 'damage': 2, 'cooldown_ms': 520},
+        }
 
         self.fleet_speed = 2
         self.fleet_drop_speed = 40
-        self.alien_points = 50 
+        self.alien_points = 50
 
     def increase_difficulty(self):
+        """Increase movement speeds for the next wave in the main game."""
         self.ship_speed += self.difficulty_scale
         self.bullet_speed += self.difficulty_scale
         self.fleet_speed += self.difficulty_scale
-            
-
-

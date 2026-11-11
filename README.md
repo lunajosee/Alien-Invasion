@@ -1,14 +1,14 @@
-# [Game title]
+# Alien Invasion: Twin Cannons
 
 A Pygame final project based on my in-class Alien Invasion game.
 
-- **Track:** [Mechanics or Assets]
-- **Project branch:** `[branch name]`
+- **Track:** Track 1: Custom Game Mechanics
+- **Project branch:** `track_1_mechanics`
 - **Starter code:** [My completed in-class Alien Invasion build](https://github.com/lunajosee/Alien-Invasion/commit/fce0cff1b927668d54dbe87686913285877a27ab)
 
 ## What I changed
 
-[Describe the new mechanic or theme in your own words. Explain what a player will notice.]
+The Milestone 1 training range has two weapons. Rapid fires a small, fast shot with a short delay. Power fires a wider, slower shot with a longer delay. Power shots carry twice the damage for the planned armored fleet in Milestone 2. The training range isolates the player and weapons from the tutorial fleet, scoring, HUD, and menus.
 
 ## Run the game
 
@@ -16,14 +16,16 @@ From the repository folder, using the project virtual environment:
 
 ```text
 python -m pip install -r requirements.txt
-python alien_invasion.py
+python training_range.py
 ```
 
 ## Controls
 
 - Left and right arrows: move
 - Space: fire
-- [Add the controls that are specific to this build.]
+- 1: select Rapid
+- 2: select Power
+- Esc or Q: quit
 
 ## Demo videos
 
