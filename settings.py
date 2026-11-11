@@ -2,22 +2,23 @@ from pathlib import Path
 class Settings:
 
     def __init__(self):
+        assets_dir = Path(__file__).resolve().parent / "Assets"
         self.name: str = "Alien Invasion"
         self.screen_w = 1200
         self.screen_h = 800
         self.FPS = 60
-        self.bg_file = Path.cwd() / 'Assets' / 'images' / "Starbasesnow.png"
+        self.bg_file = assets_dir / 'images' / "Starbasesnow.png"
         self.difficulty_scale = 1.1
-        self.scores_file = Path.cwd() / 'Assets' / 'file' / "scores.json"
+        self.scores_file = assets_dir / 'file' / "scores.json"
 
-        self.ship_file = Path.cwd() / 'Assets' / 'images' / "ship2(no bg).png"
+        self.ship_file = assets_dir / 'images' / "ship2(no bg).png"
         self.ship_w = 40
         self.ship_h = 60
-        self.bullet_file = Path.cwd() / 'Assets' / 'images' / "laserBlast.png"
-        self.laser_sound = Path.cwd() / 'Assets' / 'sound' / "laser.mp3"
-        self.impact_sound = Path.cwd() / 'Assets' / 'sound' / "impactSound.mp3"
+        self.bullet_file = assets_dir / 'images' / "laserBlast.png"
+        self.laser_sound = assets_dir / 'sound' / "laser.mp3"
+        self.impact_sound = assets_dir / 'sound' / "impactSound.mp3"
         
-        self.alien_file = Path.cwd() / 'Assets' / 'images' / "enemy_4.png"
+        self.alien_file = assets_dir / 'images' / "enemy_4.png"
         self.alien_w = 40
         self.alien_h = 40
         self.fleet_direction = 1
@@ -29,7 +30,7 @@ class Settings:
         self.text_color = (255, 255, 255)
         self.button_font_size = 48
         self.HUD_font_size = 20
-        self.font_file = Path.cwd() / 'Assets' / 'Fonts' / 'Silkscreen' / 'Silkscreen-Regular.ttf'
+        self.font_file = assets_dir / 'Fonts' / 'Silkscreen' / 'Silkscreen-Regular.ttf'
 
     def initialize_dynamic_settings(self):
         self.ship_speed = 5
