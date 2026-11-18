@@ -1,5 +1,5 @@
 """Program Name: Alien Invasion: Twin Cannons - Track 1
-Author: Jose Luna (project author)
+Author: Jose Luna 
 Purpose: Configure assets and the two weapon modes.
 Starter Code Links: https://github.com/lunajosee/Alien-Invasion/commit/fce0cff1b927668d54dbe87686913285877a27ab
 Date Updated: November 10, 2026
@@ -17,7 +17,7 @@ class Settings:
         self.screen_h = 800
         self.FPS = 60
         self.bg_file = assets_dir / 'images' / "Starbasesnow.png"
-        self.difficulty_scale = 1.12
+        self.difficulty_scale = 1.25
         self.scores_file = assets_dir / 'file' / "scores.json"
 
         self.ship_file = assets_dir / 'images' / "ship2(no bg).png"
@@ -60,4 +60,4 @@ class Settings:
 
     def increase_difficulty(self):
         """Speed up later fleets without changing the weapons or ship."""
-        self.fleet_speed = min(6, self.fleet_speed * self.difficulty_scale)
+        self.fleet_speed = min(8, self.fleet_speed * self.difficulty_scale)
