@@ -15,6 +15,17 @@ python alien_invasion.py
 
 The final build opens at the Play menu. To launch the isolated weapon prototype instead, run `python training_range.py`.
 
+## Milestone 2 demo
+
+Run `python fleet_demo.py` to launch the isolated fleet and collision demo.
+
+- Use the arrow keys to move, 1 or 2 to select a weapon, and Space to fire.
+- Normal aliens take one damage; armored aliens take two.
+- Clearing the fleet advances the wave and increases its speed.
+- A ship collision or an alien reaching the bottom removes one life.
+- At zero lives, gameplay stops. Press Q or Esc to quit.
+- This demo does not run the final HUD, scoring display, or Play button.
+
 ## Controls and rules
 
 | Control | Action |
