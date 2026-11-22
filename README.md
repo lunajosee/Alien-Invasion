@@ -40,7 +40,7 @@ The final build opens at the Play menu. To launch the isolated weapon prototype 
 
 ## Demo videos
 
-- **Milestone_1_Demo:** Add your unlisted YouTube link if you recorded this milestone.
+- **Milestone_1_Demo:** https://youtu.be/rMLu3Vc1Fas
 - **Milestone_2_Demo:** Add your unlisted YouTube link if you recorded this milestone.
 - **Final_Project_Demo:** Replace this text with your unlisted YouTube link before submitting.
 
